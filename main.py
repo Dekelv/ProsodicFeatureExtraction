@@ -1,9 +1,17 @@
 import myprosody as mp
 from pydub import AudioSegment
 p = ""
-c = ""
+c = "SegmentsLesson1"
+windowLength = 3000
+currentWindow = 0
+Audio = AudioSegment.from_wav("SSP frikandel Saar.wav")
 
-t1 = t1 * 1000 #Works in milliseconds
-t2 = t2 * 1000
-newAudio = AudioSegment.from_wav("oldSong.wav")
-newAudio = newAudio[t1:t2]
+cnt = 0
+while currentWindow <= len(Audio):
+    newAudio = Audio[currentWindow:currentWindow + currentWindow]
+    currentWindow += windowLength
+    newAudio.export(c + "/audioSeg-" + str(cnt), format="wav")
+    cnt+=1
+
+#mp.myprosody(newAudio)
+#newAudio.export('newSong.wav', format="wav")
