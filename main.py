@@ -10,7 +10,7 @@ cnt = 0
 while currentWindow <= len(Audio):
     newAudio = Audio[currentWindow:currentWindow + currentWindow]
     currentWindow += windowLength
-    newAudio.export(c + "/audioSeg-" + str(cnt), format="wav")
+    newAudio.export("dataset" + "/" + "audioFiles" + "/" + c + "/audioSeg-" + str(cnt) + ".wav", format="wav")
     cnt+=1
 
 #mp.myprosody(newAudio)
