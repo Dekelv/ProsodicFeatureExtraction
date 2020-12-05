@@ -21,11 +21,28 @@ print(snd.values.T)
 pitch = snd.to_pitch()
 pitch_values = pitch.selected_array['frequency']
 pitch_values[pitch_values==0] = np.nan
+'''
 plt.plot(pitch.xs(), pitch_values, 'o', markersize=5, color='w')
 plt.plot(pitch.xs(), pitch_values, 'o', markersize=2)
 plt.grid(False)
 plt.ylim(0, pitch.ceiling)
 plt.ylabel("fundamental frequency [Hz]")
 plt.show()
+'''
 print("Pitch")
 print(pitch_values)
+#Pitch mean
+print(pitch_values[~np.isnan(pitch_values)].mean())
+#Pitch Max
+print(pitch_values[~np.isnan(pitch_values)].max())
+#Pitch Min
+print(pitch_values[~np.isnan(pitch_values)].min())
+
+intensity = snd.to_intensity()
+print(intensity.values.T)
+#Mean Intensity
+print(intensity.values.T.mean())
+#Max Intensity
+print(intensity.values.T.max())
+#Min Intensity
+print(intensity.values.T.min())
