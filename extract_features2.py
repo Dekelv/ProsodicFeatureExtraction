@@ -102,11 +102,32 @@ def cutAudioIntoSoundSegment(audio, start_Time, End_Time):
 # You may also need to install ffmpeg if you are experiencing problems.
 audio = AudioSegment.from_file('dataset/audioFiles/m4aFiles/audio_only.m4a')
 audio.export("dataset/audioFiles/m4aFiles/audio_only.wav", format="wav")
-for wave_file in glob.glob("dataset/audioFiles/m4aFiles/audioSeg-0.wav"):
+for wave_file in glob.glob("dataset/audioFiles/m4aFiles/audio_only.wav"):
     print(wave_file)
     sound = cutAudioIntoSoundSegment(wave_file, 0, 5)
     print(sound)
     extractFeaturesForSoundSegment(sound)
+
+    pitch = sound.to_pitch()
+    pitch_values = pitch.selected_array['frequency']
+    pitch_values[pitch_values == 0] = np.nan
+
+    print(pitch_values)
+    # Pitch mean
+    print(pitch_values[~np.isnan(pitch_values)].mean())
+    # Pitch Max
+    print(pitch_values[~np.isnan(pitch_values)].max())
+    # Pitch Min
+    print(pitch_values[~np.isnan(pitch_values)].min())
+
+    intensity = sound.to_intensity()
+    print(intensity.values.T)
+    # Mean Intensity
+    print(intensity.values.T.mean())
+    # Max Intensity
+    print(intensity.values.T.max())
+    # Min Intensity
+    print(intensity.values.T.min())
 
 
 df = pd.DataFrame(np.column_stack(
