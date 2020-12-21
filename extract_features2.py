@@ -1,4 +1,4 @@
-#Measure pitch of all wav files in directory
+# Measure pitch of all wav files in directory
 import glob
 import numpy as np
 import pandas as pd
@@ -7,6 +7,7 @@ import parselmouth
 from parselmouth.praat import call
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+
 
 # This is the function to measure voice pitch
 def measurePitch(voiceID, f0min, f0max, unit):
@@ -31,22 +32,24 @@ def measurePitch(voiceID, f0min, f0max, unit):
 
     return meanF0, stdevF0, hnr, localJitter, localabsoluteJitter, rapJitter, ppq5Jitter, ddpJitter, localShimmer, localdbShimmer, apq3Shimmer, aqpq5Shimmer, apq11Shimmer, ddaShimmer
 
+
 def runPCA(df):
-    #Z-score the Jitter and Shimmer measurements
+    # Z-score the Jitter and Shimmer measurements
     features = ['localJitter', 'localabsoluteJitter', 'rapJitter', 'ppq5Jitter', 'ddpJitter',
                 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer', 'apq11Shimmer', 'ddaShimmer']
     # Separating out the features
     x = df.loc[:, features].values
     # Separating out the target
-    #y = df.loc[:,['target']].values
+    # y = df.loc[:,['target']].values
     # Standardizing the features
     x = StandardScaler().fit_transform(x)
-    #PCA
+    # PCA
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(x)
-    principalDf = pd.DataFrame(data = principalComponents, columns = ['JitterPCA', 'ShimmerPCA'])
+    principalDf = pd.DataFrame(data=principalComponents, columns=['JitterPCA', 'ShimmerPCA'])
     principalDf
     return principalDf
+
 
 # create lists to put the results
 file_list = []
@@ -65,13 +68,14 @@ aqpq5Shimmer_list = []
 apq11Shimmer_list = []
 ddaShimmer_list = []
 
-# Go through all the wave files in the folder and measure pitch
-for wave_file in glob.glob("dataset/audioFiles/SegmentsLesson1/*.wav"):
-    sound = parselmouth.Sound(wave_file)
-    (meanF0, stdevF0, hnr, localJitter, localabsoluteJitter, rapJitter, ppq5Jitter, ddpJitter, localShimmer, localdbShimmer, apq3Shimmer, aqpq5Shimmer, apq11Shimmer, ddaShimmer) = measurePitch(sound, 75, 500, "Hertz")
-    file_list.append(wave_file) # make an ID list
-    mean_F0_list.append(meanF0) # make a mean F0 list
-    sd_F0_list.append(stdevF0) # make a sd F0 list
+
+##Extracts the features for a specific sound cut
+def extractFeaturesForSoundSegment(sound):
+    (meanF0, stdevF0, hnr, localJitter, localabsoluteJitter, rapJitter, ppq5Jitter, ddpJitter, localShimmer,
+     localdbShimmer, apq3Shimmer, aqpq5Shimmer, apq11Shimmer, ddaShimmer) = measurePitch(sound, 75, 500, "Hertz")
+    file_list.append(wave_file)  # make an ID list
+    mean_F0_list.append(meanF0)  # make a mean F0 list
+    sd_F0_list.append(stdevF0)  # make a sd F0 list
     hnr_list.append(hnr)
     localJitter_list.append(localJitter)
     localabsoluteJitter_list.append(localabsoluteJitter)
@@ -84,12 +88,29 @@ for wave_file in glob.glob("dataset/audioFiles/SegmentsLesson1/*.wav"):
     aqpq5Shimmer_list.append(aqpq5Shimmer)
     apq11Shimmer_list.append(apq11Shimmer)
     ddaShimmer_list.append(ddaShimmer)
-df = pd.DataFrame(np.column_stack([file_list, mean_F0_list, sd_F0_list, hnr_list, localJitter_list, localabsoluteJitter_list, rapJitter_list, ppq5Jitter_list, ddpJitter_list, localShimmer_list, localdbShimmer_list, apq3Shimmer_list, aqpq5Shimmer_list, apq11Shimmer_list, ddaShimmer_list]),
-                               columns=['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
-                                        'ppq5Jitter', 'ddpJitter', 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer',
-                                        'apq11Shimmer', 'ddaShimmer'])  #add these lists to pandas in the right order
-#pcaData = runPCA(df)
-#df = pd.concat([df, pcaData], axis=1)
+
+
+## Once we figure out the times we can use this function to cut up the utterances without pauses to extract the features
+def cutAudioIntoSoundSegment(audio, start_Time, End_Time):
+    return parselmouth.Sound(audio).extract_part(from_time=start_Time, to_time=End_Time)
+
+
+# Go through all the wave files in the folder and measure pitch
+for wave_file in glob.glob("dataset/audioFiles/SegmentsLesson1/audioSeg-0.wav"):
+    sound = cutAudioIntoSoundSegment(wave_file, 0, 5)
+    print(sound)
+    extractFeaturesForSoundSegment(sound)
+
+
+df = pd.DataFrame(np.column_stack(
+    [file_list, mean_F0_list, sd_F0_list, hnr_list, localJitter_list, localabsoluteJitter_list, rapJitter_list,
+     ppq5Jitter_list, ddpJitter_list, localShimmer_list, localdbShimmer_list, apq3Shimmer_list, aqpq5Shimmer_list,
+     apq11Shimmer_list, ddaShimmer_list]),
+    columns=['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
+             'ppq5Jitter', 'ddpJitter', 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer',
+             'apq11Shimmer', 'ddaShimmer'])  # add these lists to pandas in the right order
+# pcaData = runPCA(df)
+# df = pd.concat([df, pcaData], axis=1)
 
 # Write out the updated dataframe
 df.to_csv("processed_results.csv", index=False)
