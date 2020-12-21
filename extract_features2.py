@@ -7,6 +7,7 @@ import parselmouth
 from parselmouth.praat import call
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from pydub import AudioSegment
 
 
 # This is the function to measure voice pitch
@@ -95,8 +96,14 @@ def cutAudioIntoSoundSegment(audio, start_Time, End_Time):
     return parselmouth.Sound(audio).extract_part(from_time=start_Time, to_time=End_Time)
 
 
-# Go through all the wave files in the folder and measure pitch
-for wave_file in glob.glob("dataset/audioFiles/SegmentsLesson1/audioSeg-0.wav"):
+# Go through all the m4a files, convert to wav in the folder and measure pitch
+
+# To get this to work, add an m4a file and update the file path.
+# You may also need to install ffmpeg if you are experiencing problems.
+audio = AudioSegment.from_file('dataset/audioFiles/m4aFiles/audio_only.m4a')
+audio.export("dataset/audioFiles/m4aFiles/audio_only.wav", format="wav")
+for wave_file in glob.glob("dataset/audioFiles/m4aFiles/audioSeg-0.wav"):
+    print(wave_file)
     sound = cutAudioIntoSoundSegment(wave_file, 0, 5)
     print(sound)
     extractFeaturesForSoundSegment(sound)
