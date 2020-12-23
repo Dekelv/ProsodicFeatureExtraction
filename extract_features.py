@@ -9,6 +9,9 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from pydub import AudioSegment
 
+from pydub.silence import split_on_silence, detect_nonsilent
+
+
 class Extract:
     # create lists to put the results
     file_list = []
@@ -42,6 +45,7 @@ class Extract:
         audio.export(m4aFile + ".wav", format="wav")
         for wave_file in glob.glob(m4aFile + ".wav"):
             sound = self.cutAudioIntoSoundSegment(wave_file, 0, 5)
+            self.detect_nonsilences(m4aFile + ".wav")
             print(sound)
             self.extractFeaturesForSoundSegment(sound, wave_file)
 
@@ -79,7 +83,14 @@ class Extract:
         # Write out the updated dataframe
         df.to_csv("processed_results.csv", index=False)
 
-    # This is the function to measure voice pitch
+    def detect_nonsilences(self, sound):
+        snd = AudioSegment.from_wav(sound)
+        dBFS = snd.dBFS
+        non_silent = detect_nonsilent(snd, min_silence_len=1000, silence_thresh= dBFS - 16)
+        #Convert to seconds
+        non_silence = [((start / 1000), (stop / 1000)) for start, stop in non_silent]
+        print(non_silence)
+
     def measurePitch(self, voiceID, f0min, f0max, unit):
         sound = parselmouth.Sound(voiceID)  # read the sound
         pitch = call(sound, "To Pitch", 0.0, f0min, f0max)  # create a praat pitch object
