@@ -14,7 +14,7 @@ from pydub.silence import split_on_silence, detect_nonsilent
 
 class Extract:
     # create lists to put the results
-    file_list = []
+    interval_list = []
     mean_F0_list = []
     sd_F0_list = []
     hnr_list = []
@@ -43,40 +43,53 @@ class Extract:
         # You may also need to install ffmpeg if you are experiencing problems.
         audio = AudioSegment.from_file(m4aFile + '.m4a')
         audio.export(m4aFile + ".wav", format="wav")
+        self.non_silences = self.detect_nonsilences(m4aFile + ".wav")
         for wave_file in glob.glob(m4aFile + ".wav"):
-            sound = self.cutAudioIntoSoundSegment(wave_file, 0, 5)
-            self.detect_nonsilences(m4aFile + ".wav")
-            print(sound)
-            self.extractFeaturesForSoundSegment(sound, wave_file)
+            for interval in self.non_silences:
+                try:
+                    sound = self.cutAudioIntoSoundSegment(wave_file, interval[0], interval[1])
+                    self.extractFeaturesForSoundSegment(sound, wave_file)
+                    self.interval_list.append(str(interval[0]) + "_" + str(interval[1]))
 
-            pitch = sound.to_pitch()
-            pitch_values = pitch.selected_array['frequency']
-            pitch_values[pitch_values == 0] = np.nan
+                    pitch = sound.to_pitch()
+                    pitch_values = pitch.selected_array['frequency']
+                    pitch_values[pitch_values == 0] = np.nan
 
-            # Pitch mean
-            self.mean_pitch.append(pitch_values[~np.isnan(pitch_values)].mean())
-            # Pitch Max
-            self.max_pitch.append(pitch_values[~np.isnan(pitch_values)].max())
-            # Pitch Min
-            self.min_pitch.append(pitch_values[~np.isnan(pitch_values)].min())
+                    # Pitch mean
+                    self.mean_pitch.append(pitch_values[~np.isnan(pitch_values)].mean())
+                    # Pitch Max
+                    self.max_pitch.append(pitch_values[~np.isnan(pitch_values)].max())
+                    # Pitch Min
+                    self.min_pitch.append(pitch_values[~np.isnan(pitch_values)].min())
 
-            intensity = sound.to_intensity()
-            # Mean Intensity
-            self.mean_intensity.append(intensity.values.T.mean())
-            # Max Intensity
-            self.max_intensity.append(intensity.values.T.max())
-            # Min Intensity
-            self.min_intensity.append(intensity.values.T.min())
+                    intensity = sound.to_intensity()
+                    # Mean Intensity
+                    self.mean_intensity.append(intensity.values.T.mean())
+                    # Max Intensity
+                    self.max_intensity.append(intensity.values.T.max())
+                    # Min Intensity
+                    self.min_intensity.append(intensity.values.T.min())
+                except Exception as e:
+                    print(e)
+                    print("An exception occurred")
 
-        df = pd.DataFrame(np.column_stack(
-            [self.file_list, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
+        lists = [self.interval_list, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
              self.ppq5Jitter_list, self.ddpJitter_list, self.localShimmer_list, self.localdbShimmer_list, self.apq3Shimmer_list,
              self.aqpq5Shimmer_list,
-             self.apq11Shimmer_list, self.ddaShimmer_list, self.mean_pitch, self.max_pitch, self.min_pitch, self.mean_intensity, self.max_intensity, self.min_intensity]),
-            columns=['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
+             self.apq11Shimmer_list, self.ddaShimmer_list, self.mean_pitch, self.max_pitch, self.min_pitch, self.mean_intensity, self.max_intensity, self.min_intensity]
+
+        column_list = ['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
                      'ppq5Jitter', 'ddpJitter', 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer',
                      'apq11Shimmer', 'ddaShimmer', 'meanPitch', 'maxPitch', 'minPitch',
-                     'meanIntensity', 'maxIntensity', 'minIntensity'])  # add these lists to pandas in the right order
+                     'meanIntensity', 'maxIntensity', 'minIntensity']
+
+        print(lists)
+        print(column_list)
+        print(len(lists))
+        print(len(column_list))
+
+        df = pd.DataFrame(np.column_stack(lists),
+            columns=column_list)  # add these lists to pandas in the right order
         # pcaData = runPCA(df)
         # df = pd.concat([df, pcaData], axis=1)
 
@@ -89,7 +102,7 @@ class Extract:
         non_silent = detect_nonsilent(snd, min_silence_len=1000, silence_thresh= dBFS - 16)
         #Convert to seconds
         non_silence = [((start / 1000), (stop / 1000)) for start, stop in non_silent]
-        print(non_silence)
+        return non_silence
 
     def measurePitch(self, voiceID, f0min, f0max, unit):
         sound = parselmouth.Sound(voiceID)  # read the sound
@@ -135,7 +148,6 @@ class Extract:
     def extractFeaturesForSoundSegment(self, sound, wave_file):
         (meanF0, stdevF0, hnr, localJitter, localabsoluteJitter, rapJitter, ppq5Jitter, ddpJitter, localShimmer,
          localdbShimmer, apq3Shimmer, aqpq5Shimmer, apq11Shimmer, ddaShimmer) = self.measurePitch(sound, 75, 500, "Hertz")
-        self.file_list.append(wave_file)  # make an ID list
         self.mean_F0_list.append(meanF0)  # make a mean F0 list
         self.sd_F0_list.append(stdevF0)  # make a sd F0 list
         self.hnr_list.append(hnr)
