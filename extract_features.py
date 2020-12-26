@@ -15,6 +15,9 @@ from pydub.silence import split_on_silence, detect_nonsilent
 class Extract:
     # create lists to put the results
     interval_list = []
+    start_times = []
+    end_times = []
+    avg_times = []
     mean_F0_list = []
     sd_F0_list = []
     hnr_list = []
@@ -50,42 +53,88 @@ class Extract:
                     sound = self.cutAudioIntoSoundSegment(wave_file, interval[0], interval[1])
                     self.extractFeaturesForSoundSegment(sound, wave_file)
                     self.interval_list.append(str(interval[0]) + "_" + str(interval[1]))
+                    self.start_times.append(str(interval[0]))
+                    self.end_times.append(str(interval[1]))
+                    self.avg_times.append(str((interval[0] + interval[1])/2))
 
                     pitch = sound.to_pitch()
                     pitch_values = pitch.selected_array['frequency']
                     pitch_values[pitch_values == 0] = np.nan
 
                     # Pitch mean
-                    self.mean_pitch.append(pitch_values[~np.isnan(pitch_values)].mean())
+                    try:
+                        self.mean_pitch.append(pitch_values[~np.isnan(pitch_values)].mean())
+                    except Exception as e:
+                        print(e)
+                        print("An exception occurred: placing -1 as placeholder")
+                        self.mean_pitch.append(-1)
                     # Pitch Max
-                    self.max_pitch.append(pitch_values[~np.isnan(pitch_values)].max())
+                    try:
+                        self.max_pitch.append(pitch_values[~np.isnan(pitch_values)].max())
+                    except Exception as e:
+                        print(e)
+                        print("An exception occurred: placing -1 as placeholder")
+                        self.max_pitch.append(-1)
                     # Pitch Min
-                    self.min_pitch.append(pitch_values[~np.isnan(pitch_values)].min())
+                    try:
+                        self.min_pitch.append(pitch_values[~np.isnan(pitch_values)].min())
+                    except Exception as e:
+                        print(e)
+                        print("An exception occurred: placing -1 as placeholder")
+                        self.min_pitch.append(-1)
 
-                    intensity = sound.to_intensity()
-                    # Mean Intensity
-                    self.mean_intensity.append(intensity.values.T.mean())
-                    # Max Intensity
-                    self.max_intensity.append(intensity.values.T.max())
-                    # Min Intensity
-                    self.min_intensity.append(intensity.values.T.min())
+                    # print("The intensities:")
+                    try:
+                        intensity = sound.to_intensity()
+                        # Mean Intensity
+                        try:
+                            self.mean_intensity.append(intensity.values.T.mean())
+                        except Exception as e:
+                            print(e)
+                            print("An exception occurred: placing -1 as placeholder")
+                            self.mean_intensity.append(-1)
+                        # Max Intensity
+                        try:
+                            self.max_intensity.append(intensity.values.T.max())
+                        except Exception as e:
+                            print(e)
+                            print("An exception occurred: placing -1 as placeholder")
+                            self.max_intensity.append(-1)
+                        # Min Intensity
+                        try:
+                            self.min_intensity.append(intensity.values.T.min())
+                        except Exception as e:
+                            print(e)
+                            print("An exception occurred: placing -1 as placeholder")
+                            self.min_intensity.append(-1)
+                    except Exception as e:
+                        print(e)
+                        print("could not extract intensities setting placeholders")
+                        self.mean_intensity.append(-1)
+                        self.max_intensity.append(-1)
+                        self.min_intensity.append(-1)
                 except Exception as e:
                     print(e)
-                    print("An exception occurred")
+                    print("could not extract pitch")
 
-        lists = [self.interval_list, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
+
+        lists = [self.interval_list, self.start_times, self.end_times, self.avg_times, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
              self.ppq5Jitter_list, self.ddpJitter_list, self.localShimmer_list, self.localdbShimmer_list, self.apq3Shimmer_list,
              self.aqpq5Shimmer_list,
              self.apq11Shimmer_list, self.ddaShimmer_list, self.mean_pitch, self.max_pitch, self.min_pitch, self.mean_intensity, self.max_intensity, self.min_intensity]
 
-        column_list = ['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
+        column_list = ['voiceID','startTime', 'endTime', 'avgTime', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
                      'ppq5Jitter', 'ddpJitter', 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer',
                      'apq11Shimmer', 'ddaShimmer', 'meanPitch', 'maxPitch', 'minPitch',
                      'meanIntensity', 'maxIntensity', 'minIntensity']
 
-        print(lists)
+        print("Extracted feature lists!!!")
+        for i in range(len(lists)):
+            print(column_list[i])
+            print(lists[i])
+            print(len(lists[i]))
+        print("The columns")
         print(column_list)
-        print(len(lists))
         print(len(column_list))
 
         df = pd.DataFrame(np.column_stack(lists),
@@ -167,3 +216,6 @@ class Extract:
     ## Once we figure out the times we can use this function to cut up the utterances without pauses to extract the features
     def cutAudioIntoSoundSegment(self, audio, start_Time, End_Time):
         return parselmouth.Sound(audio).extract_part(from_time=start_Time, to_time=End_Time)
+
+
+Extract("Participant")
