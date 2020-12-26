@@ -15,6 +15,9 @@ from pydub.silence import split_on_silence, detect_nonsilent
 class Extract:
     # create lists to put the results
     interval_list = []
+    start_times = []
+    end_times = []
+    avg_times = []
     mean_F0_list = []
     sd_F0_list = []
     hnr_list = []
@@ -50,6 +53,9 @@ class Extract:
                     sound = self.cutAudioIntoSoundSegment(wave_file, interval[0], interval[1])
                     self.extractFeaturesForSoundSegment(sound, wave_file)
                     self.interval_list.append(str(interval[0]) + "_" + str(interval[1]))
+                    self.start_times.append(str(interval[0]))
+                    self.end_times.append(str(interval[1]))
+                    self.avg_times.append(str((interval[0] + interval[1])/2))
 
                     pitch = sound.to_pitch()
                     pitch_values = pitch.selected_array['frequency']
@@ -112,12 +118,12 @@ class Extract:
                     print("could not extract pitch")
 
 
-        lists = [self.interval_list, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
+        lists = [self.interval_list, self.start_times, self.end_times, self.avg_times, self.mean_F0_list, self.sd_F0_list, self.hnr_list, self.localJitter_list, self.localabsoluteJitter_list, self.rapJitter_list,
              self.ppq5Jitter_list, self.ddpJitter_list, self.localShimmer_list, self.localdbShimmer_list, self.apq3Shimmer_list,
              self.aqpq5Shimmer_list,
              self.apq11Shimmer_list, self.ddaShimmer_list, self.mean_pitch, self.max_pitch, self.min_pitch, self.mean_intensity, self.max_intensity, self.min_intensity]
 
-        column_list = ['voiceID', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
+        column_list = ['voiceID','startTime', 'endTime', 'avgTime', 'meanF0Hz', 'stdevF0Hz', 'HNR', 'localJitter', 'localabsoluteJitter', 'rapJitter',
                      'ppq5Jitter', 'ddpJitter', 'localShimmer', 'localdbShimmer', 'apq3Shimmer', 'apq5Shimmer',
                      'apq11Shimmer', 'ddaShimmer', 'meanPitch', 'maxPitch', 'minPitch',
                      'meanIntensity', 'maxIntensity', 'minIntensity']
@@ -211,7 +217,5 @@ class Extract:
     def cutAudioIntoSoundSegment(self, audio, start_Time, End_Time):
         return parselmouth.Sound(audio).extract_part(from_time=start_Time, to_time=End_Time)
 
-    def knnRegression(self):
-        pass
 
 Extract("Participant")
