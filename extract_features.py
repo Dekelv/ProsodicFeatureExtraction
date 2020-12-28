@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from pydub import AudioSegment
 
-from pydub.silence import split_on_silence, detect_nonsilent
+from pydub.silence import detect_nonsilent
 
 
 class Extract:
@@ -143,7 +143,7 @@ class Extract:
         # df = pd.concat([df, pcaData], axis=1)
 
         # Write out the updated dataframe
-        df.to_csv("processed_results.csv", index=False)
+        df.to_csv(m4aFile + ".csv", index=False)
 
     def detect_nonsilences(self, sound):
         snd = AudioSegment.from_wav(sound)
@@ -216,6 +216,3 @@ class Extract:
     ## Once we figure out the times we can use this function to cut up the utterances without pauses to extract the features
     def cutAudioIntoSoundSegment(self, audio, start_Time, End_Time):
         return parselmouth.Sound(audio).extract_part(from_time=start_Time, to_time=End_Time)
-
-
-Extract("Participant")
