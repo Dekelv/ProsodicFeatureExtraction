@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from pydub import AudioSegment
 
-from pydub.silence import split_on_silence, detect_nonsilent
+from pydub.silence import detect_nonsilent
 
 
 class Extract:
