@@ -3,3 +3,8 @@ To run the testScript.py:
   1) create a folder called testAudioFiles in the main directory
   2) put into that folder a Computer.m4a and Participant.m4a 
   3) run testScript.py with the main directory as working directory
+
+To run full analysis (working progress):
+  1) create folder called Dataset
+  2) put all the experiment folders into the Dataset folder
+  3) run analysis.py with the main directory as working directory
