@@ -5,6 +5,6 @@ To run the testScript.py:
   3) run testScript.py with the main directory as working directory
 
 To run full analysis (working progress):
-  1) create folder called Dataset
-  2) put all the experiment folders into the Dataset folder
+  1) create folder called dataset
+  2) put all the experiment folders into the dataset folder
   3) run analysis.py with the main directory as working directory
