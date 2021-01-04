@@ -8,3 +8,6 @@ To run full analysis:
   1) create folder called dataset
   2) put all the experiment folders into the dataset folder
   3) run runanalysis.py with the main directory as working directory
+  final output:
+  -correlation.csv (delayed pearson correlation)
+  -proximityConvergence.csv (proximity and convergence scores)
