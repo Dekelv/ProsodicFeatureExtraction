@@ -4,7 +4,11 @@ To run the testScript.py:
   2) put into that folder a Computer.m4a and Participant.m4a 
   3) run testScript.py with the main directory as working directory
 
-To run full analysis (working progress):
+To run full analysis:
   1) create folder called dataset
   2) put all the experiment folders into the dataset folder
-  3) run analysis.py with the main directory as working directory
+  3) run runanalysis.py with the main directory as working directory
+  
+final output:
+  -correlation.csv (delayed pearson correlation)
+  -proximityConvergence.csv (proximity and convergence scores)
