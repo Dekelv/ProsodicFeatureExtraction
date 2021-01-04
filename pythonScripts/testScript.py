@@ -22,14 +22,14 @@ for f in range(len(column_list)):
         feature = f
         break
 # print(os.listdir("testAudioFiles"))
-x = extract_features.Extract(folder + "/Participant", folder + "/Participant_raw_features.csv")
-y = extract_features.Extract(folder + "/Computer", folder + "/Computer_raw_features.csv")
-x = plotFeatures(folder + "/Participant_raw_features.csv",1,feature)
-y = plotFeatures(folder + "/Computer_raw_features.csv",1,feature)
-x = KNNregression.KNNregression(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_KNN.csv", 7)
-y = KNNregression.KNNregression(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_KNN.csv", 7)
-x = plotFeatures(folder + "/Participant_raw_features_KNN.csv",1,feature)
-y = plotFeatures(folder + "/Computer_raw_features_KNN.csv",1,feature)
-x = MetricsComputation.getMetrics(folder + "/Participant_raw_features_KNN.csv",folder + "/Computer_raw_features_KNN.csv", folder + "/MetricsMeasurements.csv")
+# x = extract_features.Extract(folder + "/Participant", folder + "/Participant_raw_features.csv")
+# y = extract_features.Extract(folder + "/Computer", folder + "/Computer_raw_features.csv")
+# x = plotFeatures(folder + "/Participant_raw_features.csv",1,feature)
+# y = plotFeatures(folder + "/Computer_raw_features.csv",1,feature)
+# x = KNNregression.KNNregression(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_KNN.csv", 7)
+# y = KNNregression.KNNregression(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_KNN.csv", 7)
+# x = plotFeatures(folder + "/Participant_raw_features_KNN.csv",1,feature)
+# y = plotFeatures(folder + "/Computer_raw_features_KNN.csv",1,feature)
+x = MetricsComputation.getMetrics(folder + "/Participant_raw_features_KNN.csv",folder + "/Computer_raw_features_KNN.csv", folder + "/")
 
 print("--- %s seconds ---" % (time.time() - start_time))

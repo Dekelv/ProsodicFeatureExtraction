@@ -16,23 +16,73 @@ class getMetrics:
 
     def __init__(self, participantfile, computerfile, resultfile):
         self.delta_corrs = []
-
+        self.proximityConvergence = [[]]
+        self.proximityConvergence.append([])
         for delta in self.deltaValues:
             self.delta_corrs.append([])
 
         p_data = readCSVFile(participantfile)
         c_data = readCSVFile(computerfile)
-        print("p_data shape: " + str(len(p_data[0])))
-        print("c_data shape: " + str(len(c_data[0])))
-
+        ## compute correlations
         for deltaValue in range(len(self.deltaValues)):
             self.computeCorrelationsOnTheData(deltaValue, p_data, c_data)
+
+        ## compute proximity
+        for feature in range(4, len(self.column_list)):
+            proxmity = self.determineProximity(p_data, c_data, feature)
+            convergence = self.determineConvergence(p_data, c_data, proxmity, feature)
+            self.proximityConvergence[0].append([proxmity])
+            self.proximityConvergence[1].append([convergence])
+
+        ## compute convergence
+
+
         outputrows = [self.column_list[4:]] + self.delta_corrs
         outputcolumns = ["features"] + self.deltaValues
+
         df = pd.DataFrame(np.column_stack(outputrows),
                           columns=outputcolumns)  # add these lists to pandas in the right order
         # Write out the updated dataframe
-        df.to_csv(resultfile, index=False)
+        df.to_csv(resultfile + "correlation.csv", index=False)
+
+        outputrows2 = [self.column_list[4:]] + self.proximityConvergence
+        outputcolumns2 = ["feature", "Proximity", "Convergence"]
+
+        df2 = pd.DataFrame(np.column_stack(outputrows2),
+                          columns=outputcolumns2)
+
+        df2.to_csv(resultfile + "proximityConvergence.csv", index=False)
+
+    def determineProximity(self, p_data, c_data, feature):
+        size = 0
+        if (len(p_data[1]) > len(p_data[1])):
+            size = len(p_data[1])
+        else:
+            size = len(c_data[1])
+        sum = 0
+        for t in range(1,size):
+            sum += abs(p_data[feature][t] - c_data[feature][t])
+        return -sum / size
+
+    def determineConvergence(self, p_data, c_data, proximity, feature):
+        size = 0
+        D_bar = -proximity
+        if (len(p_data[1]) > len(p_data[1])):
+            size = len(p_data[1])
+        else:
+            size = len(c_data[1])
+        t_bar = size / 2
+        sum_Numerator = 0
+        sum_Denomerator_D = 0
+        sum_Denomerator_t = 0
+        for t in range(1,size):
+            sum_Numerator += (-abs(p_data[feature][t] - c_data[feature][t]) - D_bar) * (t - t_bar)
+            sum_Denomerator_D = (-abs(p_data[feature][t] - c_data[feature][t]))**2
+            sum_Denomerator_t = (t - t_bar)**2
+        convergence = sum_Numerator / (math.sqrt(sum_Denomerator_D * sum_Denomerator_t))
+        return convergence
+
+
 
     def computeCorrelationsOnTheData(self, deltaValue, p_data, c_data):
         rowCount = 0
