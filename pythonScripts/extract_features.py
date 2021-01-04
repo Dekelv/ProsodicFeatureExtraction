@@ -94,27 +94,27 @@ class Extract:
                         except Exception as e:
                             print(e)
                             print("An exception occurred: placing -1 as placeholder")
-                            self.mean_intensity.append(-1)
+                            self.mean_intensity.append(float("NaN"))
                         # Max Intensity
                         try:
                             self.max_intensity.append(intensity.values.T.max())
                         except Exception as e:
                             print(e)
                             print("An exception occurred: placing -1 as placeholder")
-                            self.max_intensity.append(-1)
+                            self.max_intensity.append(float("NaN"))
                         # Min Intensity
                         try:
                             self.min_intensity.append(intensity.values.T.min())
                         except Exception as e:
                             print(e)
                             print("An exception occurred: placing -1 as placeholder")
-                            self.min_intensity.append(-1)
+                            self.min_intensity.append(float("NaN"))
                     except Exception as e:
                         print(e)
                         print("could not extract intensities setting placeholders")
-                        self.mean_intensity.append(-1)
-                        self.max_intensity.append(-1)
-                        self.min_intensity.append(-1)
+                        self.mean_intensity.append(float("NaN"))
+                        self.max_intensity.append(float("NaN"))
+                        self.min_intensity.append(float("NaN"))
                 except Exception as e:
                     print(e)
                     print("could not extract pitch")
