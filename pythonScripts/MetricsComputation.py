@@ -116,10 +116,16 @@ class getMetrics:
             sumDenominatorP = 0
             sumDonominatorC = 0
 
-            while ((len(p_data[columnNumber]) < len(c_data[columnNumber]) and rowCount < len(p_data[columnNumber])) or (
-                    len(p_data[columnNumber]) > len(c_data[columnNumber]) and rowCount < len(
-                    c_data[columnNumber]))):
-
+            while rowCount < len(p_data[variable]) and rowCount < len(c_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(p_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(
+                    c_data[variable]):
+                print(rowCount)
+                print(self.deltaValues[deltaValue])
+                print(len(c_data[variable]))
+                print((rowCount + self.deltaValues[deltaValue]) < len(
+                    c_data[variable]))
+                print(len(p_data[variable])+ self.deltaValues[deltaValue])
+                print(len(c_data[variable])+ self.deltaValues[deltaValue])
+                print(rowCount + self.deltaValues[deltaValue])
                 sumNumerator += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (c_data[variable][rowCount] - meanC)
                 sumDenominatorP += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP)
                 sumDonominatorC += (c_data[variable][rowCount] - meanC) * (c_data[variable][rowCount] - meanC)
