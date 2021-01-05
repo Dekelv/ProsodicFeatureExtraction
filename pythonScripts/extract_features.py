@@ -15,7 +15,7 @@ from pydub.silence import detect_nonsilent
 class Extract:
     # create lists to put the results
 
-    def __init__(self, m4aFile, filename):
+    def __init__(self, m4aFile, filename, ignoreTimestamp=[]):
 
         # create lists to put the results
         self.interval_list = []
@@ -49,6 +49,19 @@ class Extract:
         audio = AudioSegment.from_file(m4aFile + '.m4a')
         audio.export(m4aFile + ".wav", format="wav")
         self.non_silences = self.detect_nonsilences(m4aFile + ".wav")
+
+        # If certain timestamps are to be ignored, remove the non_silences here
+        if len(ignoreTimestamp) is 2:
+            print("Ignoring Timestamps ", ignoreTimestamp)
+            val = len(self.non_silences) - 1
+            while val >= 0:
+                #Check if before first timestamp and check if after last timestamp
+                if self.non_silences[val][1] < ignoreTimestamp[0]:
+                    self.non_silences.pop(val)
+                elif self.non_silences[val][0] > ignoreTimestamp[1]:
+                    self.non_silences.pop(val)
+                val = val - 1
+
         for wave_file in glob.glob(m4aFile + ".wav"):
             for interval in self.non_silences:
                 try:
