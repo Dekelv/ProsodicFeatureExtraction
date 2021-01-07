@@ -38,7 +38,6 @@ class KNNregression:
             for variable in range(4, len(columns)):
                 ## finds the knn nearest indices
                 indices = self.lookForKNN(df, dfIndex, avgTime, dfsize, variable)
-                # print(indices)
                 avgVal = 0
                 for i in indices:
                     avgVal += df.loc[i][columns[variable]]
@@ -76,16 +75,16 @@ class KNNregression:
         onlyDown = False
         onlyUp = False
         while(len(indices) < self.k):
-            if(indexUp != -1):
+            if(indexUp != -1 and indexUp < dfSize):
                 diffup = abs(float(df.loc[indexUp]["avgTime"]) - avgTime)
             else:
                 diffup = float('inf')
-            if(indexDown != -1):
+            if(indexDown != -1 and indexDown >= 0):
                 diffDown = abs(float(df.loc[indexDown]["avgTime"]) - avgTime)
             else:
                 diffDown = float('inf')
-            if(indexUp == -1 and indexDown == -1):
-                raise Exception("Out of bounds")
+            if (indexUp == -1 or diffup == float('inf')) and (indexDown == -1 or diffDown == float('inf')):
+                raise Exception("Talk to Dekel : Out of bounds")
 
             if((diffup < diffDown and not onlyDown) or (onlyUp and not onlyDown)):
                 indices.append(indexUp)
@@ -116,4 +115,3 @@ class KNNregression:
 
 
 
-#print(data)
