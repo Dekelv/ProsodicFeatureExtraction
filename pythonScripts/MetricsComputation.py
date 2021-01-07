@@ -55,11 +55,12 @@ class getMetrics:
 
     def determineProximity(self, p_data, c_data, feature):
         size = 0
-        if (len(p_data[1]) > len(p_data[1])):
+        if (len(p_data[1]) > len(c_data[1])):
             size = len(c_data[1])
         else:
             size = len(p_data[1])
         sum = 0
+
         for t in range(1,size):
             sum += abs(p_data[feature][t] - c_data[feature][t])
         return -sum / size
