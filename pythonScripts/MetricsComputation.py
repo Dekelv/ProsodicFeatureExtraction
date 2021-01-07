@@ -68,7 +68,7 @@ class getMetrics:
     def determineConvergence(self, p_data, c_data, proximity, feature):
         size = 0
         D_bar = -proximity
-        if (len(p_data[1]) > len(p_data[1])):
+        if (len(p_data[1]) > len(c_data[1])):
             size = len(c_data[1])
         else:
             size = len(p_data[1])
