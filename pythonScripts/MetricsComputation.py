@@ -56,9 +56,9 @@ class getMetrics:
     def determineProximity(self, p_data, c_data, feature):
         size = 0
         if (len(p_data[1]) > len(p_data[1])):
-            size = len(p_data[1])
-        else:
             size = len(c_data[1])
+        else:
+            size = len(p_data[1])
         sum = 0
         for t in range(1,size):
             sum += abs(p_data[feature][t] - c_data[feature][t])
@@ -68,9 +68,9 @@ class getMetrics:
         size = 0
         D_bar = -proximity
         if (len(p_data[1]) > len(p_data[1])):
-            size = len(p_data[1])
-        else:
             size = len(c_data[1])
+        else:
+            size = len(p_data[1])
         t_bar = size / 2
         sum_Numerator = 0
         sum_Denomerator_D = 0
@@ -118,14 +118,14 @@ class getMetrics:
 
             while rowCount < len(p_data[variable]) and rowCount < len(c_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(p_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(
                     c_data[variable]):
-                print(rowCount)
-                print(self.deltaValues[deltaValue])
-                print(len(c_data[variable]))
-                print((rowCount + self.deltaValues[deltaValue]) < len(
-                    c_data[variable]))
-                print(len(p_data[variable])+ self.deltaValues[deltaValue])
-                print(len(c_data[variable])+ self.deltaValues[deltaValue])
-                print(rowCount + self.deltaValues[deltaValue])
+                # print(rowCount)
+                # print(self.deltaValues[deltaValue])
+                # print(len(c_data[variable]))
+                # print((rowCount + self.deltaValues[deltaValue]) < len(
+                #     c_data[variable]))
+                # print(len(p_data[variable])+ self.deltaValues[deltaValue])
+                # print(len(c_data[variable])+ self.deltaValues[deltaValue])
+                # print(rowCount + self.deltaValues[deltaValue])
                 sumNumerator += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (c_data[variable][rowCount] - meanC)
                 sumDenominatorP += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP)
                 sumDonominatorC += (c_data[variable][rowCount] - meanC) * (c_data[variable][rowCount] - meanC)

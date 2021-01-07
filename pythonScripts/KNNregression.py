@@ -24,7 +24,6 @@ class KNNregression:
             data.append([])
 
         end_time = math.floor(df.to_dict()["endTime"][len(df.to_dict()["endTime"]) - 1])
-        print("end_time: " + str(end_time))
         time = 0
         dfIndex = 0
         dfsize = len(df.to_dict().get("voiceID"))
