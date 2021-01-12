@@ -24,15 +24,16 @@ class KNNregression:
             data.append([])
 
         end_time = math.floor(df.to_dict()["endTime"][len(df.to_dict()["endTime"]) - 1])
-        time = 0
+        startTime = int(df.loc[1][1])
+        time = int(df.loc[1][1])
         dfIndex = 0
         dfsize = len(df.to_dict().get("voiceID"))
         while time < end_time:
             time += 1
-            data[0].append(str(time - 1) + "-" + str(time))
-            data[1].append(time - 1)
-            data[2].append(time)
-            avgTime = ((time - 1) + time) / 2
+            data[0].append(str(time - startTime - 1) + "-" + str(time - startTime))
+            data[1].append(time - startTime - 1)
+            data[2].append(time - startTime)
+            avgTime = ((time - startTime - 1) + time - startTime) / 2
             data[3].append(avgTime)
             # calculates the data to be put in
             for variable in range(4, len(columns)):
