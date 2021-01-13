@@ -21,25 +21,30 @@ class getMetrics:
                    'meanIntensity', 'maxIntensity', 'minIntensity']
 
     def __init__(self, expName, participantfile, computerfile, resultfile):
-        self.delta_corrs = []
-        self.delta_windowed_corrs = []
+        # self.delta_corrs = []
+        # self.delta_windowed_corrs = []
+        self.corrs = [[]]
+        self.corrs.append([])
         self.proximityConvergence = [[]]
         self.proximityConvergence.append([])
         self.proximityConvergence.append([])
         self.nameColumn = [expName for x in range(len(self.column_list[4:]))]
 
 
-        for delta in self.deltaValues:
-            self.delta_corrs.append([])
-
-        for delta in self.delayWindows:
-            self.delta_windowed_corrs.append([])
+        # for delta in self.deltaValues:
+        #     self.delta_corrs.append([])
+        #
+        # for delta in self.delayWindows:
+        #     self.delta_windowed_corrs.append([])
 
         p_data = readCSVFile(participantfile)
         c_data = readCSVFile(computerfile)
         # ## compute correlations
         # for deltaValue in range(len(self.deltaValues)):
-        #     self.computeCorrelationsOnTheData(deltaValue, p_data, c_data)
+        for feature in range(4, len(self.column_list)):
+            corr = self.computeCorrelationsOnTheData(p_data, c_data, feature)
+            self.corrs[0].append(corr[0])
+            self.corrs[1].append(corr[1])
 
         # for deltaValue in range(len(self.delayWindows)):
         #     self.windowedCorrelation(deltaValue, p_data, c_data, self.windowSize, self.shift)
@@ -63,8 +68,8 @@ class getMetrics:
         # # Write out the updated dataframe
         # df.to_csv(resultfile + "correlation.csv", index=False)
 
-        outputrows2 = [self.nameColumn] + [self.column_list[4:]] + self.proximityConvergence
-        outputcolumns2 = ["Experiment ID" , "feature", "Proximity", "Convergence", "convergence_pvalue"]
+        outputrows2 = [self.nameColumn] + [self.column_list[4:]] + self.proximityConvergence + self.corrs
+        outputcolumns2 = ["Experiment ID" , "feature", "Proximity", "Convergence", "convergence_pvalue", "pearson_corr", "pearson_corr_pvalue"]
         df2 = pd.DataFrame(np.column_stack(outputrows2),
                           columns=outputcolumns2)
 
@@ -95,40 +100,19 @@ class getMetrics:
             size = len(c_data[1])
         else:
             size = len(p_data[1])
+        D = []
+        for i in range(size):
+            D.append(-abs(p_data[feature][i] - c_data[feature][i]))
+
         return scipy.stats.pearsonr(p_data[feature][:size],c_data[feature][:size])
 
-    def computeCorrelationsOnTheData(self, deltaValue, p_data, c_data):
-        rowCount = 0
-        columnNumber = len(p_data) - 1
+    def computeCorrelationsOnTheData(self,p_data, c_data, feature):
+        if (len(p_data[1]) > len(c_data[1])):
+            size = len(c_data[1])
+        else:
+            size = len(p_data[1])
+        return scipy.stats.pearsonr(p_data[feature][:size],c_data[feature][:size])
 
-        for variable in range(4,columnNumber + 1):
-            meanC = 0
-            meanP = 0
-            while((len(p_data[columnNumber]) < len(c_data[columnNumber]) and rowCount < len(p_data[columnNumber])) or
-                  (len(p_data[columnNumber]) > len(c_data[columnNumber]) and rowCount < len(c_data[columnNumber]))):
-                rowCount += 1
-                meanP += p_data[variable][rowCount-1]
-                meanC += c_data[variable][rowCount-1]
-
-            meanP = meanP / rowCount
-            meanC = meanC / rowCount
-
-            rowCount = 0
-            sumNumerator = 0
-            sumDenominatorP = 0
-            sumDonominatorC = 0
-
-            while rowCount < len(p_data[variable]) and rowCount < len(c_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(p_data[variable]) and rowCount + self.deltaValues[deltaValue] < len(
-                    c_data[variable]):
-                if(self.deltaValues[deltaValue] + rowCount < 0):
-                    rowCount += 1
-                    continue
-
-                sumNumerator += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (c_data[variable][rowCount] - meanC)
-                sumDenominatorP += (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP) * (p_data[variable][rowCount + self.deltaValues[deltaValue]] - meanP)
-                sumDonominatorC += (c_data[variable][rowCount] - meanC) * (c_data[variable][rowCount] - meanC)
-                rowCount += 1
-            self.delta_corrs[deltaValue].append(sumNumerator / math.sqrt(sumDenominatorP * sumDonominatorC))
 
     def windowedCorrelation(self, deltaValue, p_data, c_data, windowSize, shift):
         rowCount = 0

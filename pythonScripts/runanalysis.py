@@ -35,12 +35,12 @@ for exp in experiments:
     experimentIdentifier = exp
 
     # # x = extract_features.Extract(folder + "/Participant", folder + "/Participant_raw_features.csv", [firstParticipant, lastParticipant])
-    x = disperseData(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_disp.csv")
-    y = disperseData(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_disp.csv")
-    # x = plotFeatures(folder + "/Participant_raw_features_disp.csv",1,feature, "(Participant Raw)Time vs. " + featureName, "Time(s)", featureName)
-    # y = plotFeatures(folder + "/Computer_raw_features_disp.csv",1,feature, "(Computer Raw)Time vs. " + featureName, "Time(s)", featureName)
-    x = KNNregression.KNNregression(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_KNN.csv", 7)
-    y = KNNregression.KNNregression(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_KNN.csv", 7)
+    # x = disperseData(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_disp.csv")
+    # y = disperseData(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_disp.csv")
+    # # x = plotFeatures(folder + "/Participant_raw_features_disp.csv",1,feature, "(Participant Raw)Time vs. " + featureName, "Time(s)", featureName)
+    # # y = plotFeatures(folder + "/Computer_raw_features_disp.csv",1,feature, "(Computer Raw)Time vs. " + featureName, "Time(s)", featureName)
+    # x = KNNregression.KNNregression(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_KNN.csv", 7)
+    # y = KNNregression.KNNregression(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_KNN.csv", 7)
     # x = plotFeatures(folder + "/Participant_raw_features_KNN.csv",1,feature, "(Participant KNN)Time vs. " + featureName, "Time(s)", featureName)
     # y = plotFeatures(folder + "/Computer_raw_features_KNN.csv",1,feature, "(Computer KNN)Time vs. " + featureName, "Time(s)", featureName)
     x = MetricsComputation.getMetrics(exp, folder + "/Participant_raw_features_KNN.csv", folder + "/Computer_raw_features_KNN.csv", folder + "/")
