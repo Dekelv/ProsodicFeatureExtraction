@@ -104,7 +104,7 @@ class getMetrics:
         for i in range(size):
             D.append(-abs(p_data[feature][i] - c_data[feature][i]))
 
-        return scipy.stats.pearsonr(p_data[feature][:size],c_data[feature][:size])
+        return scipy.stats.pearsonr(D,c_data[1][:size])
 
     def computeCorrelationsOnTheData(self,p_data, c_data, feature):
         if (len(p_data[1]) > len(c_data[1])):
