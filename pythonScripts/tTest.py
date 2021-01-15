@@ -14,7 +14,7 @@ for feature in input_columns[10:len(input_columns)-1]:
     data1_M = input[(input['GENDER'] == 'Male') & (input['CONDITION'] == 1)][feature].values
     data2_M = input[(input['GENDER'] == 'Male') & (input['CONDITION'] == 2)][feature].values
     if stats.shapiro(data1_M)[1] < 0.05 and stats.shapiro(data2_M)[1] < 0.05:
-        print("Bad news Male for" + feature)
+        print("Bad news Male for" + feature + " P1 value = " + str(stats.shapiro(data1_M)[1]) + " and P2 value = " + str(stats.shapiro(data2_M)[1]))
 
     p_value_male = stats.levene(data1_M, data2_M)[1]
     if p_value_male < 0.05:
