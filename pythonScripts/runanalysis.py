@@ -1,6 +1,6 @@
 import os
 
-from pythonScripts import extract_features, MetricsComputation
+from pythonScripts import extract_features, MetricsComputation, standardizeData
 from pythonScripts import KNNregression
 from pythonScripts.plotFeature import plotFeatures
 import time
@@ -34,16 +34,18 @@ for exp in experiments:
 
     experimentIdentifier = exp
 
-    # # x = extract_features.Extract(folder + "/Participant", folder + "/Participant_raw_features.csv", [firstParticipant, lastParticipant])
-    # x = disperseData(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_disp.csv")
-    # y = disperseData(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_disp.csv")
-    # # x = plotFeatures(folder + "/Participant_raw_features_disp.csv",1,feature, "(Participant Raw)Time vs. " + featureName, "Time(s)", featureName)
-    # # y = plotFeatures(folder + "/Computer_raw_features_disp.csv",1,feature, "(Computer Raw)Time vs. " + featureName, "Time(s)", featureName)
-    # x = KNNregression.KNNregression(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_KNN.csv", 7)
-    # y = KNNregression.KNNregression(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_KNN.csv", 7)
-    # x = plotFeatures(folder + "/Participant_raw_features_KNN.csv",1,feature, "(Participant KNN)Time vs. " + featureName, "Time(s)", featureName)
-    # y = plotFeatures(folder + "/Computer_raw_features_KNN.csv",1,feature, "(Computer KNN)Time vs. " + featureName, "Time(s)", featureName)
-    x = MetricsComputation.getMetrics(exp, folder + "/Participant_raw_features_KNN.csv", folder + "/Computer_raw_features_KNN.csv", folder + "/")
+   # x = extract_features.Extract(folder + "/Participant", folder + "/Participant_raw_features.csv", [firstParticipant, lastParticipant])
+    x = standardizeData.standardizeData(folder + "/Participant_raw_features.csv", folder + "/Participant_zscore_features.csv")
+    y = standardizeData.standardizeData(folder + "/Computer_raw_features.csv", folder + "/Computer_zscore_features.csv")
+   # x = disperseData(folder + "/Participant_raw_features.csv", folder + "/Participant_raw_features_disp.csv") THIS IS STILL USING RAW INSTEAD OF ZSCORE
+   # y = disperseData(folder + "/Computer_raw_features.csv", folder + "/Computer_raw_features_disp.csv") THIS IS STILL USING RAW INSTEAD OF ZSCORE
+   # x = plotFeatures(folder + "/Participant_raw_features_disp.csv",1,feature, "(Participant Raw)Time vs. " + featureName, "Time(s)", featureName) THIS IS STILL USING RAW INSTEAD OF ZSCORE
+   # y = plotFeatures(folder + "/Computer_raw_features_disp.csv",1,feature, "(Computer Raw)Time vs. " + featureName, "Time(s)", featureName) THIS IS STILL USING RAW INSTEAD OF ZSCORE
+    x = KNNregression.KNNregression(folder + "/Participant_zscore_features.csv", folder + "/Participant_zscore_features_KNN.csv", 7)
+    y = KNNregression.KNNregression(folder + "/Computer_zscore_features.csv", folder + "/Computer_zscore_features_KNN.csv", 7)
+   # x = plotFeatures(folder + "/Participant_raw_features_KNN.csv",1,feature, "(Participant KNN)Time vs. " + featureName, "Time(s)", featureName) THIS IS STILL USING RAW INSTEAD OF ZSCORE
+   # y = plotFeatures(folder + "/Computer_raw_features_KNN.csv",1,feature, "(Computer KNN)Time vs. " + featureName, "Time(s)", featureName) THIS IS STILL USING RAW INSTEAD OF ZSCORE
+    x = MetricsComputation.getMetrics(exp, folder + "/Participant_zscore_features_KNN.csv", folder + "/Computer_zscore_features_KNN.csv", folder + "/")
     print("End(Time) --> exp:" + str(cnt) + ";" + exp + ", " + str(time.time() - start_time))
 
 file1 = open("Metrics_Total_File.csv", "+a")
