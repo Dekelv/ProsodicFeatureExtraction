@@ -62,3 +62,11 @@ else:
             runFiles(dir, args.File1, args.File2, args.k)
         print("End(Time) --> exp:" + str(cnt) + ";" + exp + ", " + str(time.time() - start_time))
 
+    file1 = open("total_results(K" + str(args.k) + ").csv", "+a")
+    file1.write(
+        "Experiment ID,feature,Proximity,Convergence,convergence_pvalue, p_corr(-15), p_corr(-15)_p_val, p_corr(-10), p_corr(-10)_p_val, p_corr(-5), p_corr(-5)_p_val, p_corr(0), p_corr(0)_p_val, p_corr(5), p_corr(5)_p_val, p_corr(10), p_corr(10)_p_val, p_corr(15), p_corr(15)_p_val\n")
+    for exp in experiments:
+        f2 = open(folder + "/" + exp + "/" + "proximityConvergence(K=" + str(k) + ").csv")
+        for line in f2.readlines()[1:]:
+            file1.write(line)
+
