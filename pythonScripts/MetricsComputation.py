@@ -20,15 +20,26 @@ class getMetrics:
                    'apq11Shimmer', 'ddaShimmer', 'meanPitch', 'maxPitch', 'minPitch',
                    'meanIntensity', 'maxIntensity', 'minIntensity']
 
-    def __init__(self, expName, participantfile, computerfile, resultfile):
+    def __init__(self, expName, participantfileStandard, computerfileStandard, participantFileKNN, computerFileKNN, resultfile):
         # self.delta_corrs = []
         # self.delta_windowed_corrs = []
-        self.corrs = [[]]
-        self.corrs.append([])
+        self.corrs = []
+        for delay in range(len(self.deltaValues)):
+            self.corrs.append([])
+            self.corrs[delay].append([])
+            self.corrs[delay].append([])
         self.proximityConvergence = [[]]
         self.proximityConvergence.append([])
         self.proximityConvergence.append([])
         self.nameColumn = [expName for x in range(len(self.column_list[4:]))]
+
+        p_data_std = readCSVFile(participantfileStandard)
+        c_data_std = readCSVFile(computerfileStandard)
+
+        ## compute proximity
+        for feature in range(4, len(self.column_list)):
+            proxmity = self.determineProximity(p_data_std, c_data_std, feature)
+            self.proximityConvergence[0].append([proxmity])
 
 
         # for delta in self.deltaValues:
@@ -37,25 +48,24 @@ class getMetrics:
         # for delta in self.delayWindows:
         #     self.delta_windowed_corrs.append([])
 
-        p_data = readCSVFile(participantfile)
-        c_data = readCSVFile(computerfile)
+
+        p_data_KNN = readCSVFile(participantFileKNN)
+        c_data_KNN = readCSVFile(computerFileKNN)
+
         # ## compute correlations
         # for deltaValue in range(len(self.deltaValues)):
         for feature in range(4, len(self.column_list)):
-            corr = self.computeCorrelationsOnTheData(p_data, c_data, feature)
-            self.corrs[0].append(corr[0])
-            self.corrs[1].append(corr[1])
+            convergence = self.determineConvergence(p_data_KNN, c_data_KNN, feature)
+            self.proximityConvergence[1].append([convergence[0]])
+            self.proximityConvergence[2].append([convergence[1]])
+            for delay in range(len(self.deltaValues)):
+                corr = self.computeCorrelationsOnTheData(p_data_KNN, c_data_KNN, feature, self.deltaValues[delay])
+                self.corrs[delay][0].append(corr[0])
+                self.corrs[delay][1].append(corr[1])
+
 
         # for deltaValue in range(len(self.delayWindows)):
         #     self.windowedCorrelation(deltaValue, p_data, c_data, self.windowSize, self.shift)
-
-        ## compute proximity
-        for feature in range(4, len(self.column_list)):
-            proxmity = self.determineProximity(p_data, c_data, feature)
-            convergence = self.determineConvergence(p_data, c_data, feature)
-            self.proximityConvergence[0].append([proxmity])
-            self.proximityConvergence[1].append([convergence[0]])
-            self.proximityConvergence[2].append([convergence[1]])
 
         ## compute convergence
 
@@ -68,12 +78,12 @@ class getMetrics:
         # # Write out the updated dataframe
         # df.to_csv(resultfile + "correlation.csv", index=False)
 
-        outputrows2 = [self.nameColumn] + [self.column_list[4:]] + self.proximityConvergence + self.corrs
-        outputcolumns2 = ["Experiment ID" , "feature", "Proximity", "Convergence", "convergence_pvalue", "pearson_corr", "pearson_corr_pvalue"]
+        outputrows2 = [self.nameColumn] + [self.column_list[4:]] + self.proximityConvergence + self.corrs[0] + self.corrs[1] + self.corrs[2] + self.corrs[3] + self.corrs[4] + self.corrs[5] + self.corrs[6]
+        outputcolumns2 = ["Experiment ID" , "feature", "Proximity", "Convergence", "convergence_pvalue", "p_corr(-15)", "p_corr(-15)_p_val", "p_corr(-10)", "p_corr(-10)_p_val", "p_corr(-5)", "p_corr(-5)_p_val", "p_corr(0)", "p_corr(0)_p_val", "p_corr(5)", "p_corr(5)_p_val", "p_corr(10)", "p_corr(10)_p_val", "p_corr(15)", "p_corr(15)_p_val"]
         df2 = pd.DataFrame(np.column_stack(outputrows2),
                           columns=outputcolumns2)
 
-        df2.to_csv(resultfile + "proximityConvergence.csv", index=False)
+        df2.to_csv(resultfile, index=False)
 
         # outputrows3 = [self.column_list[4:]] + self.delta_windowed_corrs
         # outputcolumns3 = ["features"] + self.delayWindows
@@ -106,11 +116,23 @@ class getMetrics:
 
         return scipy.stats.pearsonr(D,c_data[1][:size])
 
-    def computeCorrelationsOnTheData(self,p_data, c_data, feature):
+    def computeCorrelationsOnTheData(self,p_data, c_data, feature, delay):
         if (len(p_data[1]) > len(c_data[1])):
             size = len(c_data[1])
         else:
             size = len(p_data[1])
+        print("-----------")
+        if(delay > 0):
+            print(len(p_data[feature][delay:size]))
+            print(len(c_data[feature][:size-delay]))
+        if(delay < 0):
+            print(len(p_data[feature][0:(size + delay)]))
+            print(len(c_data[feature][(0 - delay):size]))
+        print("-----------")
+        if delay > 0:
+            return scipy.stats.pearsonr(p_data[feature][delay:size],c_data[feature][:size-delay])
+        elif delay < 0:
+            return scipy.stats.pearsonr(p_data[feature][0:(size + delay)],c_data[feature][(0 - delay):size])
         return scipy.stats.pearsonr(p_data[feature][:size],c_data[feature][:size])
 
 

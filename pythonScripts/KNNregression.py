@@ -1,5 +1,6 @@
 import os
 import csv
+import sys
 import pandas as pd
 import math
 import numpy as np
@@ -24,16 +25,16 @@ class KNNregression:
             data.append([])
 
         end_time = math.floor(df.to_dict()["endTime"][len(df.to_dict()["endTime"]) - 1])
-        startTime = int(df.loc[1][1])
-        time = int(df.loc[1][1])
+        startTime = int(df.loc[0][1])
+        time = int(df.loc[0][1])
         dfIndex = 0
         dfsize = len(df.to_dict().get("voiceID"))
         while time < end_time:
             time += 1
-            data[0].append(str(time - startTime - 1) + "-" + str(time - startTime))
-            data[1].append(time - startTime - 1)
-            data[2].append(time - startTime)
-            avgTime = ((time - startTime - 1) + time - startTime) / 2
+            data[0].append(str(time - 1) + "-" + str(time))
+            data[1].append(time - 1)
+            data[2].append(time)
+            avgTime = ((time - 1) + time) / 2
             data[3].append(avgTime)
             # calculates the data to be put in
             for variable in range(4, len(columns)):
@@ -41,11 +42,13 @@ class KNNregression:
                 indices = self.lookForKNN(df, dfIndex, avgTime, dfsize, variable)
                 avgVal = 0
                 for i in indices:
+                    # print(indices)
                     avgVal += df.loc[i][columns[variable]]
                 avgVal = avgVal / self.k
+                # print(avgVal)
                 data[variable].append(avgVal)
 
-            if time > df.loc[dfIndex][2]:
+            while time > df.loc[dfIndex][2]:
                 dfIndex += 1
 
             dfnew = pd.DataFrame(np.column_stack(data),
@@ -65,9 +68,9 @@ class KNNregression:
         indexDown = index - 1
 
         if(index == 0):
-            indexDown = 0
+            indexDown = -1
 
-        while (float(df.loc[indexDown][variable]) == -1 or math.isnan(float(df.loc[indexDown][variable]))):
+        while (indexDown != -1 and (float(df.loc[indexDown][variable]) == -1 or math.isnan(float(df.loc[indexDown][variable])))):
             indexDown -= 1
             if(indexDown < 0):
                 indexDown = -1
@@ -75,6 +78,7 @@ class KNNregression:
 
         onlyDown = False
         onlyUp = False
+
         while(len(indices) < self.k):
             if(indexUp != -1 and indexUp < dfSize):
                 diffup = abs(float(df.loc[indexUp]["avgTime"]) - avgTime)
@@ -111,6 +115,7 @@ class KNNregression:
                     onlyUp = True
             else:
                 raise Exception("cannot find another index to go to")
+
         return indices
 
 
